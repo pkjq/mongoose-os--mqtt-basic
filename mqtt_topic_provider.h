@@ -33,19 +33,19 @@ public:
     MqttTopicProvider(const MqttTopicProvider&) = delete;
 
 public:
-    inline const std::string& GetTopic4Command()
+    inline const std::string& GetTopic4Command() const
     {
         ComposeMqttTopic(buffer, mgos_sys_config_get_app_mqtt()->command_topic_prefix);
         return buffer;
     }
 
-    inline const std::string& GetTopic4Telemetry()
+    inline const std::string& GetTopic4Telemetry() const
     {
         ComposeMqttTopic(buffer, mgos_sys_config_get_app_mqtt()->telemetry_topic_prefix);
         return buffer;
     }
 
-    inline const std::string& GetTopic4State()
+    inline const std::string& GetTopic4State() const
     {
         ComposeMqttTopic(buffer, mgos_sys_config_get_app_mqtt()->state_topic_prefix);
         return buffer;
@@ -63,7 +63,7 @@ private:
     }
 
 private:
-    std::string buffer;
+    mutable std::string buffer;
 };
 }
 

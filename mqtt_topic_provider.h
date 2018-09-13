@@ -51,6 +51,12 @@ public:
         return buffer;
     }
 
+    inline const std::string& GetTopic4OnlineStatus() const
+    {
+        ComposeMqttTopic(buffer, mgos_sys_config_get_app_mqtt()->online_topic_prefix);
+        return buffer;
+    }
+
 private:
     static void ComposeMqttTopic(std::string &buffer, const char *topic_prefix)
     {

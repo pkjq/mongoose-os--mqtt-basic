@@ -34,8 +34,9 @@ struct ConnectionEvents
 };
 
 
-//! Singleton (second call is ignored)
-void CreateConnectionMonitor(ConnectionEvents events);
+//! Singleton (second call is ignored!)
+//! @param online_topic - if defined then message about online state be generated on MQTT connect\disconnect
+void CreateConnectionMonitor(ConnectionEvents events, const char *online_topic = nullptr);
 }
 
 

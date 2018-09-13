@@ -24,13 +24,27 @@ namespace mqtt
 {
 namespace
 {
+namespace online_messages
+{
+    constexpr const char online[]   = "{\"online\":true}";
+    constexpr const char *die       = "{\"online\":false}";
+}
+
+
 class MqttConnectionMonitor
 {
 public:
-    inline explicit MqttConnectionMonitor(ConnectionEvents events_):
+    inline explicit MqttConnectionMonitor(ConnectionEvents events_, const char *online_topic):
         events(std::move(events_))
     {
         mgos_mqtt_add_global_handler(MqttConnectionEventsCallback, &events);
+
+        if (online_topic)
+        {
+            mgos_sys_config_set_mqtt_will_topic(online_topic);
+            mgos_sys_config_set_mqtt_will_retain(true);
+            mgos_sys_config_set_mqtt_will_message(online_messages::die);
+        }
     }
 
     MqttConnectionMonitor(const MqttConnectionMonitor&) = delete;
@@ -57,6 +71,12 @@ private:
             break;
 
         case MG_EV_MQTT_CONNACK:
+            if (mgos_sys_config_get_mqtt_will_topic())
+            {
+                constexpr auto msgLen = sizeof(online_messages::online) / sizeof(online_messages::online[0]) - 1;
+                mgos_mqtt_pub(mgos_sys_config_get_mqtt_will_topic(), online_messages::online, msgLen, 1, true);
+            }
+
             Call2Callback(callbacks.OnConnect);
             break;
         }
@@ -69,9 +89,9 @@ private:
 
 
 ///////////////////////////////////////////////////
-void CreateConnectionMonitor(ConnectionEvents events)
+void CreateConnectionMonitor(ConnectionEvents events, const char *online_topic)
 {
-    static MqttConnectionMonitor monitor(std::move(events));
+    static MqttConnectionMonitor monitor(std::move(events), online_topic);
     (void)monitor;
 }
 }
